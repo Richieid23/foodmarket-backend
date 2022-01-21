@@ -5,7 +5,7 @@ const jwtGenerator = require('../utils/jwtGenerator');
 
 const register = async(req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { name, email, password } = req.body;
 
         const user = await pool.query(queries.checkUser, [email]);
 
@@ -17,9 +17,9 @@ const register = async(req, res) => {
         const salt = await bcrypt.genSalt(saltRound); 
         const encryptedPassword = await bcrypt.hash(password, salt);
         
-        const role = "USER";
+        const roles = "USER";
 
-        const results = await pool.query(queries.register, [username, email, encryptedPassword, role]);
+        const results = await pool.query(queries.register, [name, email, encryptedPassword, roles]);
 
         const token = jwtGenerator(results.rows[0].id)
 
@@ -141,11 +141,11 @@ const getUserById = async(req, res) => {
 const updateUser = async(req, res) => {
     try {
         const { id } = req.params;
-        const { username, email, password, role } = req.body;
+        const { name, email, password, role } = req.body;
 
         const checkUserExist = await pool.query(queries.getUserById, [id]);
         if (checkUserExist.rowCount !== 0) {
-            const results = await pool.query(queries.updateUser, [username, email, password, role, id]);
+            const results = await pool.query(queries.updateUser, [name, email, password, role, id]);
             res.status(200).json({
                 status: "success",
                 data: {
